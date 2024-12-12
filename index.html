@@ -1,1 +1,198 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Return-the-Fund Calculator</title><style>    body {        font-family: "Helvetica Neue", Arial, sans-serif;        background: #f9f9f9;        margin: 0;        padding: 0;        color: #333;    }    .container {        max-width: 500px;        margin: 50px auto;        background: #ffffff;        border-radius: 8px;        box-shadow: 0 4px 20px rgba(0,0,0,0.1);        padding: 30px;    }    h1 {        margin-top: 0;        font-size: 1.8em;        text-align: center;        font-weight: 600;        color: #333;    }    .input-group {        margin-bottom: 20px;    }    .input-group label {        display: block;        font-weight: 600;        margin-bottom: 5px;    }    .input-group input {        width: 100%;        padding: 10px;        font-size: 1em;        border: 1px solid #ddd;        border-radius: 4px;        background: #fefefe;        box-sizing: border-box;    }    .results {        margin-top: 30px;        padding-top: 20px;        border-top: 1px solid #eee;    }    .result-item {        margin-bottom: 20px;    }    .result-item span {        display: block;        font-size: 0.9em;        color: #666;    }    .result-value {        font-size: 1.2em;        font-weight: bold;        color: #333;        margin-top: 4px;    }    .footer {        text-align: center;        font-size: 0.8em;        color: #aaa;        margin-top: 30px;    }    /* Responsive */    @media (max-width: 600px) {        .container {            margin: 20px;            padding: 20px;        }        h1 {            font-size: 1.4em;        }    }</style></head><body><div class="container">    <h1>Return-The-Fund Calculator</h1>    <div class="input-group">        <label for="investment">Investment Amount (USD)</label>        <input type="number" id="investment" placeholder="e.g. 5000000" />    </div>    <div class="input-group">        <label for="postVal">Post-Money Valuation (USD)</label>        <input type="number" id="postVal" placeholder="e.g. 50000000" />    </div>    <div class="input-group">        <label for="fundSize">Total Fund Size (USD)</label>        <input type="number" id="fundSize" placeholder="e.g. 150000000" />    </div>    <div class="results">        <div class="result-item">            <span>Your Percentage Ownership</span>            <div class="result-value" id="ownershipResult">Ñ</div>        </div>        <div class="result-item">            <span>Exit Value Needed to Return Entire Fund</span>            <div class="result-value" id="exitValueResult">Ñ</div>        </div>    </div>    <div class="footer">        &copy; 2024 Your Firm Name    </div></div><script>    const investmentInput = document.getElementById('investment');    const postValInput = document.getElementById('postVal');    const fundSizeInput = document.getElementById('fundSize');    const ownershipResult = document.getElementById('ownershipResult');    const exitValueResult = document.getElementById('exitValueResult');    function calculate() {        const investment = parseFloat(investmentInput.value) || 0;        const postVal = parseFloat(postValInput.value) || 0;        const fundSize = parseFloat(fundSizeInput.value) || 0;        let ownership = 0;        let exitValue = 0;        if (investment > 0 && postVal > 0) {            ownership = investment / postVal;        }        if (ownership > 0 && fundSize > 0) {            exitValue = fundSize / ownership;        }        if (ownership > 0) {            ownershipResult.textContent = (ownership * 100).toFixed(2) + "%";        } else {            ownershipResult.textContent = "Ñ";        }        if (exitValue > 0) {            exitValueResult.textContent = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(exitValue);        } else {            exitValueResult.textContent = "Ñ";        }    }    investmentInput.addEventListener('input', calculate);    postValInput.addEventListener('input', calculate);    fundSizeInput.addEventListener('input', calculate);</script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Return-The-Fund Calculator</title>
+<style>
+    body {
+        font-family: "Helvetica Neue", Arial, sans-serif;
+        background: #f9f9f9;
+        margin: 0;
+        padding: 0;
+        color: #333;
+    }
+    .container {
+        max-width: 500px;
+        margin: 50px auto;
+        background: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        padding: 30px;
+    }
+    h1 {
+        margin-top: 0;
+        font-size: 1.8em;
+        text-align: center;
+        font-weight: 600;
+        color: #333;
+    }
+    .input-group {
+        margin-bottom: 20px;
+    }
+    .input-group label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+    .input-group input[type="number"],
+    .input-group input[type="text"] {
+        width: 100%;
+        padding: 10px;
+        font-size: 1em;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background: #fefefe;
+        box-sizing: border-box;
+    }
+    .slider-group {
+        margin-bottom: 30px;
+    }
+    .slider-group input[type="range"] {
+        width: 100%;
+    }
+    .slider-value {
+        text-align: right;
+        font-size: 0.9em;
+        color: #333;
+        margin-bottom: 5px;
+    }
+    .results {
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid #eee;
+    }
+    .result-item {
+        margin-bottom: 20px;
+    }
+    .result-item span {
+        display: block;
+        font-size: 0.9em;
+        color: #666;
+    }
+    .result-value {
+        font-size: 1.2em;
+        font-weight: bold;
+        color: #333;
+        margin-top: 4px;
+    }
+    .footer {
+        text-align: center;
+        font-size: 0.8em;
+        color: #aaa;
+        margin-top: 30px;
+    }
+
+    @media (max-width: 600px) {
+        .container {
+            margin: 20px;
+            padding: 20px;
+        }
+        h1 {
+            font-size: 1.4em;
+        }
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Return-The-Fund Calculator</h1>
+    <div class="input-group">
+        <label for="investment">Investment Amount (USD)</label>
+        <input type="text" id="investment" placeholder="e.g. 5,000,000" />
+    </div>
+    <div class="input-group">
+        <label for="postVal">Post-Money Valuation (USD)</label>
+        <input type="text" id="postVal" placeholder="e.g. 50,000,000" />
+    </div>
+    <div class="input-group">
+        <label for="fundSize">Total Fund Size (USD)</label>
+        <input type="text" id="fundSize" placeholder="e.g. 150,000,000" />
+    </div>
+
+    <div class="slider-group">
+        <div class="slider-value">
+            Dilution: <span id="dilutionDisplay">0%</span>
+        </div>
+        <input type="range" id="dilutionSlider" min="0" max="50" value="0" />
+    </div>
+
+    <div class="results">
+        <div class="result-item">
+            <span>Your Percentage Ownership (after dilution)</span>
+            <div class="result-value" id="ownershipResult">â€”</div>
+        </div>
+        <div class="result-item">
+            <span>Exit Value Needed to Return Entire Fund</span>
+            <div class="result-value" id="exitValueResult">â€”</div>
+        </div>
+    </div>
+    <div class="footer">
+        &copy; 2024 Your Firm Name
+    </div>
+</div>
+
+<script>
+// Helper: Remove non-digit characters, parse number
+function parseNumber(str) {
+    return parseFloat(str.replace(/,/g, ''));
+}
+
+// Helper: Format number with thousand separators
+function formatNumber(value) {
+    if (!value && value !== 0) return '';
+    const parts = value.toString().split('.');
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    return parts.join('.');
+}
+
+// Listen and format input fields on the fly
+function formatInputOnChange(input) {
+    let val = input.value;
+    // Strip commas
+    val = val.replace(/,/g, '');
+    // Parse and reformat
+    const num = parseFloat(val);
+    if (!isNaN(num)) {
+        input.value = formatNumber(num);
+    } else {
+        // If empty or invalid, leave it as is
+        input.value = '';
+    }
+    calculate();
+}
+
+const investmentInput = document.getElementById('investment');
+const postValInput = document.getElementById('postVal');
+const fundSizeInput = document.getElementById('fundSize');
+const dilutionSlider = document.getElementById('dilutionSlider');
+const dilutionDisplay = document.getElementById('dilutionDisplay');
+
+const ownershipResult = document.getElementById('ownershipResult');
+const exitValueResult = document.getElementById('exitValueResult');
+
+// Calculate function
+function calculate() {
+    const investment = parseNumber(investmentInput.value) || 0;
+    const postVal = parseNumber(postValInput.value) || 0;
+    const fundSize = parseNumber(fundSizeInput.value) || 0;
+    const dilution = parseFloat(dilutionSlider.value) || 0;
+
+    let ownership = 0;
+    let exitValue = 0;
+
+    if (investment > 0 && postVal > 0) {
+        // Original ownership
+        const originalOwnership = investment / postVal;
+        // Adjust for dilution
+        const finalOwnership = originalOwnership * (1 - (dilution / 100));
+        ownership = finalOwnership;
+    }
+
+    if (ownership > 0 && fundSize > 0) {
+        exitValue = fundSize / ownership;
+    }
+
+    ownershipResult.textContent = ownership > 0 ? (ownership * 100).toFixed(2) + "%" : "â€”";
+    exitValueResult.textContent = exitValue > 0 ? new
