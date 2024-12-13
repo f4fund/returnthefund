@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Return-The-Fund Calculator</title>
+<title>Return-the-Fund Calculator</title>
 <style>
     body {
         font-family: "Helvetica Neue", Arial, sans-serif;
@@ -35,8 +35,7 @@
         font-weight: 600;
         margin-bottom: 5px;
     }
-    .input-group input[type="number"],
-    .input-group input[type="text"] {
+    .input-group input {
         width: 100%;
         padding: 10px;
         font-size: 1em;
@@ -44,18 +43,6 @@
         border-radius: 4px;
         background: #fefefe;
         box-sizing: border-box;
-    }
-    .slider-group {
-        margin-bottom: 30px;
-    }
-    .slider-group input[type="range"] {
-        width: 100%;
-    }
-    .slider-value {
-        text-align: right;
-        font-size: 0.9em;
-        color: #333;
-        margin-bottom: 5px;
     }
     .results {
         margin-top: 30px;
@@ -83,6 +70,7 @@
         margin-top: 30px;
     }
 
+    /* Responsive */
     @media (max-width: 600px) {
         .container {
             margin: 20px;
@@ -100,27 +88,20 @@
     <h1>Return-The-Fund Calculator</h1>
     <div class="input-group">
         <label for="investment">Investment Amount (USD)</label>
-        <input type="text" id="investment" placeholder="e.g. 5,000,000" />
+        <input type="number" id="investment" placeholder="e.g. 5000000" />
     </div>
     <div class="input-group">
         <label for="postVal">Post-Money Valuation (USD)</label>
-        <input type="text" id="postVal" placeholder="e.g. 50,000,000" />
+        <input type="number" id="postVal" placeholder="e.g. 50000000" />
     </div>
     <div class="input-group">
         <label for="fundSize">Total Fund Size (USD)</label>
-        <input type="text" id="fundSize" placeholder="e.g. 150,000,000" />
-    </div>
-
-    <div class="slider-group">
-        <div class="slider-value">
-            Dilution: <span id="dilutionDisplay">0%</span>
-        </div>
-        <input type="range" id="dilutionSlider" min="0" max="50" value="0" />
+        <input type="number" id="fundSize" placeholder="e.g. 150000000" />
     </div>
 
     <div class="results">
         <div class="result-item">
-            <span>Your Percentage Ownership (after dilution)</span>
+            <span>Your Percentage Ownership</span>
             <div class="result-value" id="ownershipResult">—</div>
         </div>
         <div class="result-item">
@@ -134,65 +115,45 @@
 </div>
 
 <script>
-// Helper: Remove non-digit characters, parse number
-function parseNumber(str) {
-    return parseFloat(str.replace(/,/g, ''));
-}
+    const investmentInput = document.getElementById('investment');
+    const postValInput = document.getElementById('postVal');
+    const fundSizeInput = document.getElementById('fundSize');
 
-// Helper: Format number with thousand separators
-function formatNumber(value) {
-    if (!value && value !== 0) return '';
-    const parts = value.toString().split('.');
-    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-    return parts.join('.');
-}
+    const ownershipResult = document.getElementById('ownershipResult');
+    const exitValueResult = document.getElementById('exitValueResult');
 
-// Listen and format input fields on the fly
-function formatInputOnChange(input) {
-    let val = input.value;
-    // Strip commas
-    val = val.replace(/,/g, '');
-    // Parse and reformat
-    const num = parseFloat(val);
-    if (!isNaN(num)) {
-        input.value = formatNumber(num);
-    } else {
-        // If empty or invalid, leave it as is
-        input.value = '';
-    }
-    calculate();
-}
+    function calculate() {
+        const investment = parseFloat(investmentInput.value) || 0;
+        const postVal = parseFloat(postValInput.value) || 0;
+        const fundSize = parseFloat(fundSizeInput.value) || 0;
 
-const investmentInput = document.getElementById('investment');
-const postValInput = document.getElementById('postVal');
-const fundSizeInput = document.getElementById('fundSize');
-const dilutionSlider = document.getElementById('dilutionSlider');
-const dilutionDisplay = document.getElementById('dilutionDisplay');
+        let ownership = 0;
+        let exitValue = 0;
 
-const ownershipResult = document.getElementById('ownershipResult');
-const exitValueResult = document.getElementById('exitValueResult');
+        if (investment > 0 && postVal > 0) {
+            ownership = investment / postVal;
+        }
 
-// Calculate function
-function calculate() {
-    const investment = parseNumber(investmentInput.value) || 0;
-    const postVal = parseNumber(postValInput.value) || 0;
-    const fundSize = parseNumber(fundSizeInput.value) || 0;
-    const dilution = parseFloat(dilutionSlider.value) || 0;
+        if (ownership > 0 && fundSize > 0) {
+            exitValue = fundSize / ownership;
+        }
 
-    let ownership = 0;
-    let exitValue = 0;
+        if (ownership > 0) {
+            ownershipResult.textContent = (ownership * 100).toFixed(2) + "%";
+        } else {
+            ownershipResult.textContent = "—";
+        }
 
-    if (investment > 0 && postVal > 0) {
-        // Original ownership
-        const originalOwnership = investment / postVal;
-        // Adjust for dilution
-        const finalOwnership = originalOwnership * (1 - (dilution / 100));
-        ownership = finalOwnership;
+        if (exitValue > 0) {
+            exitValueResult.textContent = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(exitValue);
+        } else {
+            exitValueResult.textContent = "—";
+        }
     }
 
-    if (ownership > 0 && fundSize > 0) {
-        exitValue = fundSize / ownership;
-    }
-
-    ownershipResult.textContent = ownership > 0 ? (ownership * 100).toFixed(2) + "%" : "—";
-    exitValueResult.textContent = exitValue > 0 ? new
+    investmentInput.addEventListener('input', calculate);
+    postValInput.addEventListener('input', calculate);
+    fundSizeInput.addEventListener('input', calculate);
+</script>
+</body>
+</html>
