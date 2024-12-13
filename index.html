@@ -44,6 +44,42 @@
         background: #fefefe;
         box-sizing: border-box;
     }
+    .slider-container {
+        margin-bottom: 20px;
+    }
+    .slider-container label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+    .slider-value {
+        display: inline-block;
+        margin-left: 10px;
+        font-weight: normal;
+    }
+    .slider {
+        width: 100%;
+        height: 8px;
+        border-radius: 4px;
+        background: #ddd;
+        outline: none;
+        -webkit-appearance: none;
+    }
+    .slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: #4a90e2;
+        cursor: pointer;
+    }
+    .slider::-moz-range-thumb {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: #4a90e2;
+        cursor: pointer;
+    }
     .results {
         margin-top: 30px;
         padding-top: 20px;
@@ -88,21 +124,33 @@
     <h1>Return-The-Fund Calculator</h1>
     <div class="input-group">
         <label for="investment">Investment Amount (USD)</label>
-        <input type="number" id="investment" placeholder="e.g. 5000000" />
+        <input type="text" id="investment" placeholder="e.g. 5,000,000" />
     </div>
     <div class="input-group">
         <label for="postVal">Post-Money Valuation (USD)</label>
-        <input type="number" id="postVal" placeholder="e.g. 50000000" />
+        <input type="text" id="postVal" placeholder="e.g. 50,000,000" />
     </div>
     <div class="input-group">
         <label for="fundSize">Total Fund Size (USD)</label>
-        <input type="number" id="fundSize" placeholder="e.g. 150000000" />
+        <input type="text" id="fundSize" placeholder="e.g. 150,000,000" />
+    </div>
+
+    <div class="slider-container">
+        <label for="dilutionSlider">
+            Expected Dilution
+            <span class="slider-value" id="dilutionValue">25%</span>
+        </label>
+        <input type="range" id="dilutionSlider" class="slider" min="0" max="75" value="25" />
     </div>
 
     <div class="results">
         <div class="result-item">
-            <span>Your Percentage Ownership</span>
+            <span>Initial Ownership</span>
             <div class="result-value" id="ownershipResult">—</div>
+        </div>
+        <div class="result-item">
+            <span>Final Ownership (After Dilution)</span>
+            <div class="result-value" id="finalOwnershipResult">—</div>
         </div>
         <div class="result-item">
             <span>Exit Value Needed to Return Entire Fund</span>
@@ -118,30 +166,56 @@
     const investmentInput = document.getElementById('investment');
     const postValInput = document.getElementById('postVal');
     const fundSizeInput = document.getElementById('fundSize');
+    const dilutionSlider = document.getElementById('dilutionSlider');
+    const dilutionValue = document.getElementById('dilutionValue');
 
     const ownershipResult = document.getElementById('ownershipResult');
+    const finalOwnershipResult = document.getElementById('finalOwnershipResult');
     const exitValueResult = document.getElementById('exitValueResult');
 
+    // Format number with commas
+    function formatNumber(num) {
+        return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
+    // Parse number string by removing commas
+    function parseFormattedNumber(str) {
+        return parseFloat(str.replace(/,/g, '')) || 0;
+    }
+
+    // Format input fields with commas
+    function formatInputField(input) {
+        const value = parseFormattedNumber(input.value);
+        if (value) {
+            input.value = formatNumber(value);
+        }
+    }
+
     function calculate() {
-        const investment = parseFloat(investmentInput.value) || 0;
-        const postVal = parseFloat(postValInput.value) || 0;
-        const fundSize = parseFloat(fundSizeInput.value) || 0;
+        const investment = parseFormattedNumber(investmentInput.value);
+        const postVal = parseFormattedNumber(postValInput.value);
+        const fundSize = parseFormattedNumber(fundSizeInput.value);
+        const dilution = parseFloat(dilutionSlider.value) / 100;
 
         let ownership = 0;
+        let finalOwnership = 0;
         let exitValue = 0;
 
         if (investment > 0 && postVal > 0) {
             ownership = investment / postVal;
+            finalOwnership = ownership * (1 - dilution);
         }
 
-        if (ownership > 0 && fundSize > 0) {
-            exitValue = fundSize / ownership;
+        if (finalOwnership > 0 && fundSize > 0) {
+            exitValue = fundSize / finalOwnership;
         }
 
         if (ownership > 0) {
             ownershipResult.textContent = (ownership * 100).toFixed(2) + "%";
+            finalOwnershipResult.textContent = (finalOwnership * 100).toFixed(2) + "%";
         } else {
             ownershipResult.textContent = "—";
+            finalOwnershipResult.textContent = "—";
         }
 
         if (exitValue > 0) {
@@ -151,9 +225,18 @@
         }
     }
 
-    investmentInput.addEventListener('input', calculate);
-    postValInput.addEventListener('input', calculate);
-    fundSizeInput.addEventListener('input', calculate);
+    // Input event handlers
+    [investmentInput, postValInput, fundSizeInput].forEach(input => {
+        input.addEventListener('input', (e) => {
+            formatInputField(e.target);
+            calculate();
+        });
+    });
+
+    dilutionSlider.addEventListener('input', (e) => {
+        dilutionValue.textContent = e.target.value + "%";
+        calculate();
+    });
 </script>
 </body>
 </html>
