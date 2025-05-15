@@ -188,91 +188,108 @@
             <div class="result-value" id="exitValueResult">—</div>
         </div>
         <div class="result-item">
-            <span>MOIC (Multiple on Invested Capital)</span>
+            <span>Implied MOIC</span>
             <div class="result-value" id="moicResult">—</div>
         </div>
     </div>
 </div>
 
 <script>
-    const investmentInput = document.getElementById('investment');
-    const postValInput = document.getElementById('postVal');
-    const fundSizeInput = document.getElementById('fundSize');
-    const dilutionSlider = document.getElementById('dilutionSlider');
-    const dilutionValue = document.getElementById('dilutionValue');
+    // Wait for the DOM to be fully loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        const investmentInput = document.getElementById('investment');
+        const postValInput = document.getElementById('postVal');
+        const fundSizeInput = document.getElementById('fundSize');
+        const dilutionSlider = document.getElementById('dilutionSlider');
+        const dilutionValue = document.getElementById('dilutionValue');
 
-    const ownershipResult = document.getElementById('ownershipResult');
-    const finalOwnershipResult = document.getElementById('finalOwnershipResult');
-    const exitValueResult = document.getElementById('exitValueResult');
-    const moicResult = document.getElementById('moicResult');
+        const ownershipResult = document.getElementById('ownershipResult');
+        const finalOwnershipResult = document.getElementById('finalOwnershipResult');
+        const exitValueResult = document.getElementById('exitValueResult');
+        const moicResult = document.getElementById('moicResult');
 
-    function formatNumber(num) {
-        return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-    }
-
-    function parseFormattedNumber(str) {
-        return parseFloat(str.replace(/,/g, '')) || 0;
-    }
-
-    function formatInputField(input) {
-        const value = parseFormattedNumber(input.value);
-        if (value) {
-            input.value = formatNumber(value);
-        }
-    }
-
-    function calculate() {
-        const investment = parseFormattedNumber(investmentInput.value);
-        const postVal = parseFormattedNumber(postValInput.value);
-        const fundSize = parseFormattedNumber(fundSizeInput.value);
-        const dilution = parseFloat(dilutionSlider.value) / 100;
-
-        let ownership = 0;
-        let finalOwnership = 0;
-        let exitValue = 0;
-        let moic = 0;
-
-        if (investment > 0 && postVal > 0) {
-            ownership = investment / postVal;
-            finalOwnership = ownership * (1 - dilution);
+        function formatNumber(num) {
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         }
 
-        if (finalOwnership > 0 && fundSize > 0) {
-            exitValue = fundSize / finalOwnership;
-            
-            // Calculate MOIC - how many times the initial investment is returned
-            if (investment > 0) {
-                // MOIC = (Exit Value × Final Ownership) / Investment Amount
-                moic = (exitValue * finalOwnership) / investment;
+        function parseFormattedNumber(str) {
+            return parseFloat(str.replace(/,/g, '')) || 0;
+        }
+
+        function formatInputField(input) {
+            const value = parseFormattedNumber(input.value);
+            if (value) {
+                input.value = formatNumber(value);
             }
         }
 
-        if (ownership > 0) {
-            ownershipResult.textContent = (ownership * 100).toFixed(2) + "%";
-            finalOwnershipResult.textContent = (finalOwnership * 100).toFixed(2) + "%";
-        } else {
-            ownershipResult.textContent = "—";
-            finalOwnershipResult.textContent = "—";
+        function calculate() {
+            const investment = parseFormattedNumber(investmentInput.value);
+            const postVal = parseFormattedNumber(postValInput.value);
+            const fundSize = parseFormattedNumber(fundSizeInput.value);
+            const dilution = parseFloat(dilutionSlider.value) / 100;
+
+            let ownership = 0;
+            let finalOwnership = 0;
+            let exitValue = 0;
+            let moic = 0;
+
+            if (investment > 0 && postVal > 0) {
+                ownership = investment / postVal;
+                finalOwnership = ownership * (1 - dilution);
+            }
+
+            if (finalOwnership > 0 && fundSize > 0) {
+                exitValue = fundSize / finalOwnership;
+                
+                // Calculate MOIC - how many times the initial investment is returned
+                if (investment > 0) {
+                    // MOIC = (Exit Value × Final Ownership) / Investment Amount
+                    moic = (exitValue * finalOwnership) / investment;
+                }
+            }
+
+            if (ownership > 0) {
+                ownershipResult.textContent = (ownership * 100).toFixed(2) + "%";
+                finalOwnershipResult.textContent = (finalOwnership * 100).toFixed(2) + "%";
+            } else {
+                ownershipResult.textContent = "—";
+                finalOwnershipResult.textContent = "—";
+            }
+
+            if (exitValue > 0) {
+                exitValueResult.textContent = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(exitValue);
+                moicResult.textContent = moic.toFixed(1) + "x";
+            } else {
+                exitValueResult.textContent = "—";
+                moicResult.textContent = "—";
+            }
+            
+            console.log("Calculated MOIC: " + moic.toFixed(1) + "x with dilution: " + dilution);
         }
 
-        if (exitValue > 0) {
-            exitValueResult.textContent = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(exitValue);
-            moicResult.textContent = moic.toFixed(1) + "x";
-        } else {
-            exitValueResult.textContent = "—";
-            moicResult.textContent = "—";
-        }
-    }
-
-    [investmentInput, postValInput, fundSizeInput].forEach(input => {
-        input.addEventListener('input', (e) => {
-            formatInputField(e.target);
+        // Attach event listeners
+        investmentInput.addEventListener('input', function() {
+            formatInputField(this);
             calculate();
         });
-    });
-
-    dilutionSlider.addEventListener('input', (e) => {
-        dilutionValue.textContent = e.target.value + "%";
+        
+        postValInput.addEventListener('input', function() {
+            formatInputField(this);
+            calculate();
+        });
+        
+        fundSizeInput.addEventListener('input', function() {
+            formatInputField(this);
+            calculate();
+        });
+        
+        dilutionSlider.addEventListener('input', function() {
+            dilutionValue.textContent = this.value + "%";
+            calculate();
+        });
+        
+        // Initialize calculations
         calculate();
     });
 </script>
