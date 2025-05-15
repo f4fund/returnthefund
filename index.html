@@ -187,6 +187,10 @@
             <span>Exit Value Needed to Return Entire Fund</span>
             <div class="result-value" id="exitValueResult">—</div>
         </div>
+        <div class="result-item">
+            <span>MOIC (Multiple on Invested Capital)</span>
+            <div class="result-value" id="moicResult">—</div>
+        </div>
     </div>
 </div>
 
@@ -200,6 +204,7 @@
     const ownershipResult = document.getElementById('ownershipResult');
     const finalOwnershipResult = document.getElementById('finalOwnershipResult');
     const exitValueResult = document.getElementById('exitValueResult');
+    const moicResult = document.getElementById('moicResult');
 
     function formatNumber(num) {
         return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -225,6 +230,7 @@
         let ownership = 0;
         let finalOwnership = 0;
         let exitValue = 0;
+        let moic = 0;
 
         if (investment > 0 && postVal > 0) {
             ownership = investment / postVal;
@@ -233,6 +239,12 @@
 
         if (finalOwnership > 0 && fundSize > 0) {
             exitValue = fundSize / finalOwnership;
+            
+            // Calculate MOIC - how many times the initial investment is returned
+            if (investment > 0) {
+                // MOIC = (Exit Value × Final Ownership) / Investment Amount
+                moic = (exitValue * finalOwnership) / investment;
+            }
         }
 
         if (ownership > 0) {
@@ -245,8 +257,10 @@
 
         if (exitValue > 0) {
             exitValueResult.textContent = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(exitValue);
+            moicResult.textContent = moic.toFixed(1) + "x";
         } else {
             exitValueResult.textContent = "—";
+            moicResult.textContent = "—";
         }
     }
 
